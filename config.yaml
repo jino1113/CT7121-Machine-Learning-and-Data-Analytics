@@ -1,5 +1,5 @@
 behaviors:
-  MoveToGoal:
+  3DBall:
     trainer_type: ppo
     hyperparameters:
       batch_size: 64
@@ -14,6 +14,3 @@ behaviors:
     max_steps: 500000
     time_horizon: 64
     summary_freq: 10000
-    action_spec:
-      continuous: 2  
-      discrete: []  
