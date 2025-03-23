@@ -8,6 +8,9 @@ TagManager:
   - Bullet
   - player
   - Wall
+  - flower_plant
+  - nectar
+  - boundary
   layers:
   - Default
   - TransparentFX
