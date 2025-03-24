@@ -135,6 +135,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: FloatingIsland
       objectReference: {fileID: 0}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 5022602860645237092, guid: 7f9c794d8a369c94e9db35b32f8ba7a8, type: 3}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: m_BehaviorType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: m_BrainParameters.VectorActionSpaceType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: m_BrainParameters.VectorActionSize.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: 'm_BrainParameters.VectorActionSize.Array.data[0]'
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: m_BrainParameters.m_ActionSpec.BranchSizes.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8300093684851999083, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
+      propertyPath: m_BrainParameters.m_ActionSpec.m_NumContinuousActions
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8703149456917459529, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -179,7 +207,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3325119682286898445, guid: 423815a9aec87fb48bbb6f0f35a66653, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
