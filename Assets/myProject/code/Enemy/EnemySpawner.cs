@@ -1,63 +1,93 @@
-using UnityEngine;
-using UnityEngine.AI;
+๏ปฟusing UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public GameObject enemyPrefab;      // พรีแฟบศัตรู / Enemy prefab
-    public Transform spawnPoint;        // ตำแหน่งเกิดศัตรู / Spawn point
-    public float spawnRate = 3f;        // เวลาสร้างศัตรูใหม่ / Spawn interval
-    public int maxEnemies = 5;          // จำนวนศัตรูสูงสุด / Max enemies in scene
+    public GameObject enemyPrefab;     // Enemy prefab
+    public GameObject target;
+    public Transform spawnPoint;       // Spawn position
+    public float spawnRate = 3f;       // Spawn interval
+    public int maxEnemies = 5;         // Max enemies in this area
+    public float detectionRadius = 10f;// Radius to check for enemies
+    public LayerMask enemyLayer;       // Enemy layer
 
-    private int currentEnemyCount = 0;  // นับจำนวนศัตรูปัจจุบัน / Current enemy count
+    public float boxWidth = 10f;
+    public float boxHeight = 2f;
+    public float boxDepth = 10f;
 
-    void Start()
+    private void Start()
     {
-        InvokeRepeating(nameof(SpawnEnemy), 1f, spawnRate); // สร้างซ้ำตามเวลา / Repeated spawn
+        InvokeRepeating(nameof(SpawnEnemy), 1f, spawnRate);
     }
 
     void SpawnEnemy()
     {
-        if (currentEnemyCount < maxEnemies)
+        if (spawnPoint == null)
         {
-            Vector3 spawnPosition = GetValidSpawnPosition(); // หาตำแหน่งที่วางศัตรูได้
-            Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-            currentEnemyCount++;
+            Debug.LogError($"[EnemySpawner] SpawnPoint not assigned on {gameObject.name}");
+            return;
+        }
+
+        Collider[] nearbyEnemies = Physics.OverlapSphere(transform.position, detectionRadius, enemyLayer);
+        int nearbyCount = 0;
+
+        foreach (Collider col in nearbyEnemies)
+        {
+            if (col.CompareTag("Enemy"))
+            {
+                nearbyCount++;
+            }
+        }
+
+        if (nearbyCount >= maxEnemies) return;
+
+        Vector3 spawnPosition = GetValidSpawnPosition();
+        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+        // โ… Assign player
+        enemy.GetComponent<EnemyAI>().player = target.transform;
+
+        // โ… Stop NavMeshAgent motion right after spawn
+        if (enemy.TryGetComponent(out UnityEngine.AI.NavMeshAgent agent))
+        {
+            agent.ResetPath(); // Cancel movement
+            agent.velocity = Vector3.zero; // Stop instantly
         }
     }
+
 
     Vector3 GetValidSpawnPosition()
     {
-        // Raycast ลงด้านล่างจากตำแหน่ง spawn เพื่อหา "พื้น"
         Vector3 start = spawnPoint.position + Vector3.up * 2f;
+
+        // Only cast against "Ground" or "Default" if needed
         if (Physics.Raycast(start, Vector3.down, out RaycastHit hit, 10f))
         {
-            return hit.point; // ถ้าเจอพื้น คืนตำแหน่งพื้น
+            return hit.point;
         }
 
-        return spawnPoint.position; // ถ้าไม่เจอพื้น ใช้ตำแหน่งเดิม
+        return spawnPoint.position;
     }
 
-    public void EnemyDied()
-    {
-        currentEnemyCount--; // ลดจำนวนเมื่อศัตรูตาย / Decrease count when enemy dies
-    }
 
-    /// <summary>
-    /// ลบศัตรูทั้งหมด และรีเซ็ตจำนวน / Destroy all enemies and reset count
-    /// </summary>
     public void ResetEnemies()
     {
-        // หาศัตรูทั้งหมดที่มี tag = "Enemy"
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-
-        foreach (GameObject enemy in enemies)
+        Vector3 halfExtents = new Vector3(boxWidth / 2f, boxHeight / 2f, boxDepth / 2f); // Set this based on your box size
+        Collider[] enemies = Physics.OverlapBox(transform.position, halfExtents, Quaternion.identity, enemyLayer);
+        foreach (Collider enemy in enemies)
         {
-            Destroy(enemy);
+            if (enemy.CompareTag("Enemy"))
+            {
+                Destroy(enemy.gameObject);
+            }
         }
-
-        currentEnemyCount = 0;
-
-        // สร้างตัวแรกทันที (ถ้าต้องการ) / Optionally spawn one now
-        SpawnEnemy();
     }
+
+#if UNITY_EDITOR
+    void OnDrawGizmosSelected()
+    {
+        Vector3 halfExtents = new Vector3(boxWidth / 2f, boxHeight / 2f, boxDepth / 2f); // Set this based on your box size
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(transform.position, halfExtents);
+    }
+#endif
 }

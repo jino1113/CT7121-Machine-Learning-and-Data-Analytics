@@ -46,9 +46,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 4672622117116147428, guid: f43564e1f764c4248b5411d732efc8b7, type: 3}
+  target: {fileID: 0}
   spawnPoint: {fileID: 8459592891374052708}
   spawnRate: 3
   maxEnemies: 5
+  detectionRadius: 10
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  boxWidth: 10
+  boxHeight: 2
+  boxDepth: 10
 --- !u!1 &6099775142451421401
 GameObject:
   m_ObjectHideFlags: 0

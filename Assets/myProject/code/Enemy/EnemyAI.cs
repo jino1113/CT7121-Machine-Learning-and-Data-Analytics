@@ -1,4 +1,4 @@
-using System.Collections;
+๏ปฟusing System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,21 +15,31 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // ค้นหา player ถ้ายังไม่ได้เซ็ตไว้ใน Inspector
+        // โ… Stop any initial movement
+        agent.ResetPath();               // Cancel any planned path
+        agent.velocity = Vector3.zero;   // Ensure it's not moving
+
         if (player == null)
         {
-            GameObject foundPlayer = GameObject.FindGameObjectWithTag("player");
-            if (foundPlayer != null)
+            float closestDist = Mathf.Infinity;
+            GameObject[] players = GameObject.FindGameObjectsWithTag("player");
+
+            foreach (GameObject p in players)
             {
-                player = foundPlayer.transform;
+                float dist = Vector3.Distance(transform.position, p.transform.position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    player = p.transform;
+                }
             }
-            else
+
+            if (player == null)
             {
-                Debug.LogError("ไม่พบ GameObject ที่มี Tag = player");
+                Debug.LogError("No PlayerAgent found near this enemy.");
             }
         }
     }
-
 
     void Update()
     {
@@ -37,7 +47,7 @@ public class EnemyAI : MonoBehaviour
         {
             agent.SetDestination(player.position);
 
-            // ตรวจสอบระยะโจมตี
+            // ยตรรยจรรยบรรรรรขยจรยตร•
             if (Vector3.Distance(transform.position, player.position) <= attackRange && canAttack)
             {
                 StartCoroutine(AttackPlayer());
@@ -51,7 +61,7 @@ public class EnemyAI : MonoBehaviour
 
         if (player != null)
         {
-            PlayerHealth ph = player.root.GetComponent<PlayerHealth>();
+            PlayerHealth ph = player.GetComponent<PlayerHealth>();
             if (ph != null)
             {
                 ph.TakeDamage(damage);
@@ -63,7 +73,6 @@ public class EnemyAI : MonoBehaviour
         }
 
         yield return new WaitForSeconds(1.0f);
-        Destroy(gameObject); // ศัตรูหายไปเมื่อกัดผู้เล่น
+        Destroy(gameObject); // รร‘ยตรรรร’รรคยปร รร—รจรยกร‘ยดยผรรฉร ร…รจยน
     }
-
 }

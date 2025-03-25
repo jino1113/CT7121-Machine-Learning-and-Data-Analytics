@@ -2,6 +2,9 @@
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
+using static UnityEditor.PlayerSettings.SplashScreen;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerAgent : Agent
@@ -23,6 +26,16 @@ public class PlayerAgent : Agent
     public Transform target; // เป้าหมาย / Target to move toward
 
     private PlayerShooting shooter; // ระบบยิงกระสุน / Bullet shooting system
+
+    public float detectRadius = 10f;         // Radius for detection
+    public float detectDistance = 20f;       // How far to cast
+    public LayerMask enemyLayer;             // Assign in Inspector to only detect enemies
+
+    private float smoothMoveInput = 0f;
+    private float smoothStrafeInput = 0f;
+    private float smoothRotationInput = 0f;
+
+    public float inputSmoothTime = 0.1f; // Adjustable smoothing factor
 
     private void Start()
     {
@@ -51,6 +64,8 @@ public class PlayerAgent : Agent
         // ย้ายผู้เล่นกลับไปยังตำแหน่งเริ่มต้น (spawnpoint)
         // Move agent back to spawnpoint position
         transform.position = spawnpoint.transform.position;
+        moveDirection = Vector3.zero;
+        controller.Move(moveDirection * Time.deltaTime);
 
         // รีเซ็ตเลือดของผู้เล่นและ UI HP
         // Reset player HP and UI
@@ -94,57 +109,65 @@ public class PlayerAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions)
     {
-        // รับข้อมูลจาก Neural Network หรือ Heuristic (Manual Input)
-        float moveInput = Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);     // เดินหน้า/ถอยหลัง / Move forward/backward
-        float strafeInput = Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);   // เดินซ้าย/ขวา / Strafe left/right
-        bool jump = actions.ContinuousActions[2] > 0.5f;                          // กระโดด / Jump
-        float rotationInput = Mathf.Clamp(actions.ContinuousActions[3], -1f, 1f); // หมุนซ้าย/ขวา / Rotate left/right
-        bool isRunning = actions.ContinuousActions[4] > 0.5f;                     // วิ่ง / Run
-        float shootInput = actions.ContinuousActions.Length > 5 ? actions.ContinuousActions[5] : 0f; // ยิง / Shoot
+        // 🧠 Enemy detection
+        if (target == null)
+        {
+            RaycastHit[] hits = Physics.SphereCastAll(transform.position, detectRadius, transform.forward, detectDistance, enemyLayer);
+            foreach (var hit in hits)
+            {
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    target = hit.collider.transform;
+                    break;
+                }
+            }
+        }
 
-        // ความเร็วขึ้นอยู่กับว่ากำลังกดวิ่งหรือไม่ / Choose walk or run speed
+        // 🎮 Get raw inputs from actions
+        float rawMove = Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);
+        float rawStrafe = Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);
+        bool jump = actions.ContinuousActions[2] > 0.5f;
+        float rawRotation = Mathf.Clamp(actions.ContinuousActions[3], -1f, 1f);
+        bool isRunning = actions.ContinuousActions[4] > 0.5f;
+        float shootInput = actions.ContinuousActions.Length > 5 ? actions.ContinuousActions[5] : 0f;
+
         float speed = isRunning ? runSpeed : walkSpeed;
 
-        // แปลงทิศทางตามการหมุนของตัวละคร / Transform directions to world space
+        // 🧈 Smooth inputs
+        smoothMoveInput = Mathf.Lerp(smoothMoveInput, rawMove, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
+        smoothStrafeInput = Mathf.Lerp(smoothStrafeInput, rawStrafe, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
+        smoothRotationInput = Mathf.Lerp(smoothRotationInput, rawRotation, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
+
+        // 🦶 Movement
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
-        float movementY = moveDirection.y; // เก็บความเร็วแกน Y ไว้ก่อน (แรงโน้มถ่วง)
+        float movementY = moveDirection.y;
 
-        // สร้างเวกเตอร์การเคลื่อนที่ / Calculate horizontal movement
-        moveDirection = (forward * moveInput + right * strafeInput) * speed;
-        moveDirection.y = movementY; // คืนค่าความเร็วแกน Y กลับมา
+        moveDirection = (forward * smoothMoveInput + right * smoothStrafeInput) * speed;
+        moveDirection.y = movementY;
 
-        // กระโดด (เฉพาะตอนอยู่บนพื้น) / Jump only when grounded
         if (controller.isGrounded && jump)
-        {
             moveDirection.y = jumpPower;
-        }
-
-        // ใช้แรงโน้มถ่วง / Apply gravity
         if (!controller.isGrounded)
-        {
             moveDirection.y -= gravity * Time.deltaTime;
-        }
 
-        // เคลื่อนที่ด้วย CharacterController / Move the player
         controller.Move(moveDirection * Time.deltaTime);
 
-        // หมุนตัวละครซ้าย-ขวา / Rotate player along Y-axis
-        transform.Rotate(0, rotationInput * rotationSpeed * Time.deltaTime, 0);
+        // ↻ Smooth rotation
+        transform.Rotate(0, smoothRotationInput * rotationSpeed * Time.deltaTime, 0);
 
-        // ยิงกระสุน (ถ้ามีคำสั่ง) / Shoot bullet if commanded
+        // 🔫 Shooting
         if (shooter != null)
-        {
             shooter.TryShoot(shootInput);
-        }
 
-        // ให้รางวัลถ้าอยู่ใกล้เป้าหมาย / Reward for approaching target
+        // 🎯 Reward shaping
         if (target != null)
         {
             float distance = Vector3.Distance(transform.localPosition, target.localPosition);
-            AddReward(-distance / 1000f); // ยิ่งใกล้ยิ่งรางวัลน้อย (ค่าติดลบ) / Closer = less penalty
+            AddReward(-distance / 1000f);
         }
     }
+
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
