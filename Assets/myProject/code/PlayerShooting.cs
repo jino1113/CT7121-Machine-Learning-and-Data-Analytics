@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerShooting : MonoBehaviour
 {
@@ -7,13 +6,8 @@ public class PlayerShooting : MonoBehaviour
     public Transform firePoint;
     public float bulletSpeed = 20f;
 
-    public void OnFire(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            Shoot();
-        }
-    }
+    public float shootCooldown = 0.3f; // ความถี่ในการยิง (วินาที) / Time between shots
+    private float lastShootTime = 0f;  // เวลาที่ยิงครั้งล่าสุด / Last time a shot was fired
 
     void Shoot()
     {
@@ -21,5 +15,14 @@ public class PlayerShooting : MonoBehaviour
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         rb.velocity = firePoint.forward * bulletSpeed;
         Destroy(bullet, 2f);
+        lastShootTime = Time.time; // อัปเดตเวลาที่ยิงล่าสุด / Update last shoot time
+    }
+
+    public void TryShoot(float value)
+    {
+        if (value > 0.5f && Time.time > lastShootTime + shootCooldown)
+        {
+            Shoot(); // ยิงถ้าพร้อมและ cooldown ครบ / Shoot if ready
+        }
     }
 }
