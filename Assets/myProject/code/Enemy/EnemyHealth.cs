@@ -5,12 +5,12 @@ public class EnemyHealth : MonoBehaviour
 {
     public int health = 3;
     private EnemySpawner spawner;
-    [SerializeField] private WaveManager waveManager; // ✅ Add reference to WaveManager
+    [SerializeField] private WaveManager waveManager; // Add reference to WaveManager
 
     void Start()
     {
         spawner = FindFirstObjectByType<EnemySpawner>(); // ใช้วิธีใหม่แทน
-        waveManager = FindFirstObjectByType<WaveManager>(); // ✅ Find the WaveManager
+        waveManager = FindFirstObjectByType<WaveManager>(); // Find the WaveManager
     }
 
     public void TakeDamage(int damage)
@@ -31,7 +31,7 @@ public class EnemyHealth : MonoBehaviour
             agent.AddReward(+1f); // เพิ่มรางวัลเมื่อฆ่าศัตรู / Give reward when enemy is killed
         }
 
-        // ✅ Notify WaveManager
+        // Notify WaveManager
         if (waveManager != null)
         {
             agent.AddReward(+5f);
@@ -42,7 +42,7 @@ public class EnemyHealth : MonoBehaviour
         {
             agent.AddReward(+1f); // เพิ่มรางวัลเมื่อฆ่าศัตรู / Give reward when enemy is killed
             CoinManager.Instance.AddCoin(1);
-            Debug.Log("Coin Added"); // ✅ ตรวจว่าเรียกจริง
+            Debug.Log("Coin Added"); // ตรวจว่าเรียกจริง
         }
 
         // ทำลายวัตถุของศัตรู / Destroy enemy object

@@ -15,8 +15,8 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
-        behaviorParameters = GetComponent<BehaviorParameters>(); // ✅ เก็บไว้ใช้
-        UpdateHealthUI(); // ✅ แสดงค่าเริ่มต้น
+        behaviorParameters = GetComponent<BehaviorParameters>(); // เก็บไว้ใช้
+        UpdateHealthUI(); // แสดงค่าเริ่มต้น
     }
 
     public void TakeDamage(int amount)
@@ -30,7 +30,7 @@ public class PlayerHealth : MonoBehaviour
             agent.AddReward(-1f); // ลดรางวัลเมื่อโดนโจมตี / Reduce rewards when attacked
         }
 
-        UpdateHealthUI(); // ✅ อัปเดต UI HP
+        UpdateHealthUI(); // อัปเดต UI HP
 
         if (health <= 0)
         {
@@ -39,7 +39,7 @@ public class PlayerHealth : MonoBehaviour
 
             if (agent != null)
             {
-                agent.EndEpisode(); // ✅ จบ Episode ทันที
+                agent.EndEpisode(); // จบ Episode ทันที
 
                 if (behaviorParameters == null)
                     Debug.LogWarning("behaviorParameters is null");
@@ -56,7 +56,7 @@ public class PlayerHealth : MonoBehaviour
             }
 
             if (playerUI != null)
-                playerUI.SetActive(false); // ✅ ซ่อน UI
+                playerUI.SetActive(false); // ซ่อน UI
         }
     }
 

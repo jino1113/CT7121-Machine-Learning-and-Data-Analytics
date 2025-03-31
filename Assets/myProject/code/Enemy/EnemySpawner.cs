@@ -43,10 +43,10 @@ public class EnemySpawner : MonoBehaviour
         Vector3 spawnPosition = GetValidSpawnPosition();
         GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
 
-        // ✅ Assign player
+        // Assign player
         enemy.GetComponent<EnemyAI>().player = target.transform;
 
-        // ✅ Stop NavMeshAgent motion right after spawn
+        // Stop NavMeshAgent motion right after spawn
         if (enemy.TryGetComponent(out UnityEngine.AI.NavMeshAgent agent))
         {
             agent.ResetPath(); // Cancel movement

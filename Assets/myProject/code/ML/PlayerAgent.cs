@@ -36,11 +36,13 @@ public class PlayerAgent : Agent
     private float smoothRotationInput = 0f;
 
     public float inputSmoothTime = 0.1f; // Adjustable smoothing factor
+    public Transform enemy;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked; // ล็อกเมาส์ตรงกลางหน้าจอ / Lock the cursor in the center
         Cursor.visible = false; // ซ่อนเมาส์ / Hide the cursor
+        enemy = GameObject.FindWithTag("Enemy")?.transform;
     }
 
     public override void Initialize()
@@ -102,14 +104,34 @@ public class PlayerAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(transform.localPosition); // ตำแหน่งของ Agent / Agent position
-        sensor.AddObservation(moveDirection);           // ความเร็ว Agent / Current velocity
-        sensor.AddObservation(target != null ? target.localPosition : Vector3.zero); // ตำแหน่งเป้าหมาย / Target position
+        // ตำแหน่งของตัวเอง / Own position
+        sensor.AddObservation(transform.localPosition);
+
+        // ตำแหน่งศัตรู (enemy) — อย่าลืม assign ให้ถูกใน inspector
+        if (enemy != null)
+        {
+            sensor.AddObservation(enemy.localPosition);
+
+            // ระยะห่างถึงศัตรู
+            Vector3 toEnemy = enemy.localPosition - transform.localPosition;
+            sensor.AddObservation(toEnemy.normalized); // ทิศทาง
+            sensor.AddObservation(toEnemy.magnitude);  // ระยะ
+        }
+        else
+        {
+            // กัน null
+            sensor.AddObservation(Vector3.zero);
+            sensor.AddObservation(Vector3.zero);
+            sensor.AddObservation(0f);
+        }
+
+        // ความเร็วของตัวเอง
+        sensor.AddObservation(moveDirection);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
     {
-        // 🧠 Enemy detection
+        // Enemy detection
         if (target == null)
         {
             RaycastHit[] hits = Physics.SphereCastAll(transform.position, detectRadius, transform.forward, detectDistance, enemyLayer);
@@ -123,7 +145,7 @@ public class PlayerAgent : Agent
             }
         }
 
-        // 🎮 Get raw inputs from actions
+        // Get raw inputs from actions
         float rawMove = Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);
         float rawStrafe = Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);
         bool jump = actions.ContinuousActions[2] > 0.5f;
@@ -133,12 +155,12 @@ public class PlayerAgent : Agent
 
         float speed = isRunning ? runSpeed : walkSpeed;
 
-        // 🧈 Smooth inputs
+        // Smooth inputs
         smoothMoveInput = Mathf.Lerp(smoothMoveInput, rawMove, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
         smoothStrafeInput = Mathf.Lerp(smoothStrafeInput, rawStrafe, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
         smoothRotationInput = Mathf.Lerp(smoothRotationInput, rawRotation, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
 
-        // 🦶 Movement
+        // Movement
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
         float movementY = moveDirection.y;
@@ -153,10 +175,10 @@ public class PlayerAgent : Agent
 
         controller.Move(moveDirection * Time.deltaTime);
 
-        // ↻ Smooth rotation
+        // Smooth rotation
         transform.Rotate(0, smoothRotationInput * rotationSpeed * Time.deltaTime, 0);
 
-        // 🔫 Shooting
+        // Shooting
         if (shooter != null)
             shooter.TryShoot(shootInput);
 
@@ -164,8 +186,15 @@ public class PlayerAgent : Agent
         if (target != null)
         {
             float distance = Vector3.Distance(transform.localPosition, target.localPosition);
-            AddReward(-distance / 1000f);
+
+            if (distance < 3f)
+                AddReward(-0.05f); // ❌ ลงโทษถ้าเข้าใกล้ศัตรูเกินไป
+
+            AddReward(-distance / 1000f); // 📉 ลงโทษเล็กน้อยตามระยะ (ใกล้ = แย่)
         }
+
+        // ✅ อยู่รอดได้ = ได้รางวัลเล็กน้อย
+        AddReward(0.001f * Time.deltaTime);
     }
 
 
