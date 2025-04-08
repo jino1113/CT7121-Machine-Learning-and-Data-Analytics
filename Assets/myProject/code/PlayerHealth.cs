@@ -5,7 +5,7 @@ using TMPro;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int health = 3;
+    public int health = 5;
 
     public GameOverUI gameOverUI;     // UI Game Over
     public GameObject playerUI;       // กล่อง UI ที่ครอบ HP ทั้งหมด
@@ -55,8 +55,8 @@ public class PlayerHealth : MonoBehaviour
                 }
             }
 
-            if (playerUI != null)
-                playerUI.SetActive(false); // ซ่อน UI
+            //if (playerUI != null)
+            //    playerUI.SetActive(false); // ซ่อน UI
         }
     }
 

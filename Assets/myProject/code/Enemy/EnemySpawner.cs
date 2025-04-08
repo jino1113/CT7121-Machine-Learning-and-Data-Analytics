@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab;     // Enemy prefab
     public GameObject target;
-    public Transform spawnPoint;       // Spawn position
+    public Transform[] spawnPoint;       // Spawn position
     public float spawnRate = 3f;       // Spawn interval
     public int maxEnemies = 5;         // Max enemies in this area
     public float detectionRadius = 10f;// Radius to check for enemies
@@ -40,7 +42,15 @@ public class EnemySpawner : MonoBehaviour
 
         if (nearbyCount >= maxEnemies) return;
 
-        Vector3 spawnPosition = GetValidSpawnPosition();
+        Vector3 spawnPosition = Vector3.zero; // Declare it outside with a default
+
+        List<Vector3> validSpawns = GetValidSpawnPosition();
+        if (validSpawns.Count > 0)
+        {
+            spawnPosition = validSpawns[UnityEngine.Random.Range(0, validSpawns.Count)];
+        }
+
+        // Instantiate using the selected spawnPosition
         GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
 
         // Assign player
@@ -55,17 +65,22 @@ public class EnemySpawner : MonoBehaviour
     }
 
 
-    Vector3 GetValidSpawnPosition()
+    public List<Vector3> GetValidSpawnPosition()
     {
-        Vector3 start = spawnPoint.position + Vector3.up * 2f;
+        List<Vector3> validSpawns = new List<Vector3>();
 
-        // Only cast against "Ground" or "Default" if needed
-        if (Physics.Raycast(start, Vector3.down, out RaycastHit hit, 10f))
+        for (int i = 0; i < spawnPoint.Length; i++)
         {
-            return hit.point;
+            Vector3 start = spawnPoint[i].position + Vector3.up * 2f;
+
+            // Cast downward to check for ground
+            if (Physics.Raycast(start, Vector3.down, out RaycastHit hit, 10f))
+            {
+                validSpawns.Add(hit.point); // Valid ground position
+            }
         }
 
-        return spawnPoint.position;
+        return validSpawns;
     }
 
 

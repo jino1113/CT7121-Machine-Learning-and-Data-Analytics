@@ -120,14 +120,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2184597228607587939, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: health
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: jumpPower
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
       propertyPath: spawnpoint
       value: 
       objectReference: {fileID: 3955334815606783367}
+    - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: rotationSpeed
+      value: 500
+      objectReference: {fileID: 0}
     - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
       propertyPath: enemyLayer.m_Bits
       value: 512
@@ -142,8 +154,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4448021401660386104, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
       propertyPath: m_InferenceDevice
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6068641916766989403, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.806
+      objectReference: {fileID: 0}
+    - target: {fileID: 6068641916766989403, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.167
+      objectReference: {fileID: 0}
+    - target: {fileID: 6380760646950884038, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: gunTransform
+      value: 
+      objectReference: {fileID: 771790872342656520}
     - target: {fileID: 9098484456426048642, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
       propertyPath: m_Name
       value: PlayerAgent
@@ -153,6 +177,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+--- !u!4 &771790872342656520 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 261168593634824189, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+  m_PrefabInstance: {fileID: 660385127587183093}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2304920569092201906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1645663027748643911, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
@@ -258,8 +287,12 @@ PrefabInstance:
       value: 19.04
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
-      propertyPath: maxEnemies
+      propertyPath: spawnRate
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
+      propertyPath: maxEnemies
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: detectionRadius

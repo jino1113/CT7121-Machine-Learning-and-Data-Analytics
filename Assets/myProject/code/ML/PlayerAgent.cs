@@ -36,13 +36,12 @@ public class PlayerAgent : Agent
     private float smoothRotationInput = 0f;
 
     public float inputSmoothTime = 0.1f; // Adjustable smoothing factor
-    public Transform enemy;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked; // ล็อกเมาส์ตรงกลางหน้าจอ / Lock the cursor in the center
         Cursor.visible = false; // ซ่อนเมาส์ / Hide the cursor
-        enemy = GameObject.FindWithTag("Enemy")?.transform;
+        //enemy = GameObject.FindWithTag("Enemy")?.transform;
     }
 
     public override void Initialize()
@@ -108,12 +107,12 @@ public class PlayerAgent : Agent
         sensor.AddObservation(transform.localPosition);
 
         // ตำแหน่งศัตรู (enemy) — อย่าลืม assign ให้ถูกใน inspector
-        if (enemy != null)
+        if (target != null)
         {
-            sensor.AddObservation(enemy.localPosition);
+            sensor.AddObservation(target.localPosition);
 
             // ระยะห่างถึงศัตรู
-            Vector3 toEnemy = enemy.localPosition - transform.localPosition;
+            Vector3 toEnemy = target.localPosition - transform.localPosition;
             sensor.AddObservation(toEnemy.normalized); // ทิศทาง
             sensor.AddObservation(toEnemy.magnitude);  // ระยะ
         }
@@ -131,18 +130,17 @@ public class PlayerAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions)
     {
-        // Enemy detection
-        if (target == null)
+        target = EnemyVisibilityUtil.GetVisibleEnemy(transform, "Enemy", "Wall", detectDistance);
+        bool seesEnemyClearly = target != null;
+
+        // Movement penalty
+        Vector3 flatMovement = moveDirection;
+        flatMovement.y = 0f; // Ignore vertical movement
+        float movementAmount = flatMovement.magnitude;
+
+        if (movementAmount > 0.1f)
         {
-            RaycastHit[] hits = Physics.SphereCastAll(transform.position, detectRadius, transform.forward, detectDistance, enemyLayer);
-            foreach (var hit in hits)
-            {
-                if (hit.collider.CompareTag("Enemy"))
-                {
-                    target = hit.collider.transform;
-                    break;
-                }
-            }
+            AddReward(-movementAmount * 0.001f); // Penalize slight for moving too much
         }
 
         // Get raw inputs from actions
@@ -154,6 +152,18 @@ public class PlayerAgent : Agent
         float shootInput = actions.ContinuousActions.Length > 5 ? actions.ContinuousActions[5] : 0f;
 
         float speed = isRunning ? runSpeed : walkSpeed;
+
+        if (seesEnemyClearly)
+        {
+            // Stop movement and shoot when enemy is seen
+            rawMove = 0f;
+            rawStrafe = 0f;
+            shootInput = 1f; // Shoot continuously
+        }
+
+        // Shooting (shooting only happens when player sees the enemy)
+        if (shooter != null && seesEnemyClearly)
+            shooter.TryShoot(shootInput);
 
         // Smooth inputs
         smoothMoveInput = Mathf.Lerp(smoothMoveInput, rawMove, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
@@ -178,22 +188,24 @@ public class PlayerAgent : Agent
         // Smooth rotation
         transform.Rotate(0, smoothRotationInput * rotationSpeed * Time.deltaTime, 0);
 
-        // Shooting
-        if (shooter != null)
-            shooter.TryShoot(shootInput);
-
-        // 🎯 Reward shaping
+        // Reward shaping
         if (target != null)
         {
-            float distance = Vector3.Distance(transform.localPosition, target.localPosition);
+            Vector3 dirToEnemy = (target.position - transform.position).normalized;
+            float distanceToEnemy = Vector3.Distance(transform.position, target.position);
 
-            if (distance < 3f)
-                AddReward(-0.05f); // ❌ ลงโทษถ้าเข้าใกล้ศัตรูเกินไป
+            // Check if enemy is in front
+            float forwardDot = Vector3.Dot(transform.forward, dirToEnemy);
 
-            AddReward(-distance / 1000f); // 📉 ลงโทษเล็กน้อยตามระยะ (ใกล้ = แย่)
+            if (distanceToEnemy < 10f && forwardDot > 0.5f)
+            {
+                // If enemy is close and in front, move backward
+                rawMove = -1f;
+                rawStrafe = 0f;
+            }
         }
 
-        // ✅ อยู่รอดได้ = ได้รางวัลเล็กน้อย
+        // อยู่รอดได้ = ได้รางวัลเล็กน้อย
         AddReward(0.001f * Time.deltaTime);
     }
 

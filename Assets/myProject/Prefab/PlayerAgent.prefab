@@ -152,12 +152,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6229805458170744851}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.051, y: 0.441, z: 1.237}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.12779479, y: 0.046764243, z: 0.5401661}
+  m_LocalScale: {x: 3.3630526, y: 2.9231186, z: 0.8359128}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1645663027748643911}
+  m_Father: {fileID: 261168593634824189}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7393856848260781391
 GameObject:
@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 5044681768569302261}
   - component: {fileID: 5318589856922303464}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -189,7 +189,8 @@ Transform:
   m_LocalPosition: {x: 0.013, y: 0.425, z: 0.5908}
   m_LocalScale: {x: 0.2973489, y: 0.34210038, z: 1.1962969}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7395508291291575416}
   m_Father: {fileID: 1645663027748643911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5044681768569302261
@@ -262,6 +263,7 @@ GameObject:
   - component: {fileID: 4448021401660386104}
   - component: {fileID: 4402919154400566600}
   - component: {fileID: 3571136585146744895}
+  - component: {fileID: 6380760646950884038}
   m_Layer: 0
   m_Name: PlayerAgent
   m_TagString: player
@@ -283,7 +285,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 261168593634824189}
-  - {fileID: 7395508291291575416}
   - {fileID: 6068641916766989403}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -476,6 +477,12 @@ MonoBehaviour:
   rotationSpeed: 200
   spawnpoint: {fileID: 0}
   target: {fileID: 4926032569303522547, guid: f43564e1f764c4248b5411d732efc8b7, type: 3}
+  detectRadius: 10
+  detectDistance: 20
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  inputSmoothTime: 0.1
 --- !u!114 &3571136585146744895
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -491,3 +498,21 @@ MonoBehaviour:
   DecisionPeriod: 5
   DecisionStep: 0
   TakeActionsBetweenDecisions: 1
+--- !u!114 &6380760646950884038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9098484456426048642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9d93dadbf0ab4a438f28e89864f96d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraTransform: {fileID: 6068641916766989403}
+  playerTransform: {fileID: 1645663027748643911}
+  enemyTag: Enemy
+  wallTag: Wall
+  rotationSpeed: 5
+  gunTransform: {fileID: 0}
