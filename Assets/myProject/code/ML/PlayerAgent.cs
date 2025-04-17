@@ -36,18 +36,26 @@ public class PlayerAgent : Agent
     public float inputSmoothTime = 0.1f; // Adjustable smoothing factor
     private float timeSinceSeenEnemy = 0f;
 
-    private bool CanWalkToCollectible()
+    bool CanWalkToCollectible()
     {
         if (collectible == null) return false;
 
-        Vector3 dir = collectible.position - transform.position;
-        if (Physics.Raycast(transform.position + Vector3.up, dir.normalized, out RaycastHit hit, dir.magnitude, LayerMask.GetMask("Wall")))
+        Vector3 start = transform.position + Vector3.up * 1.0f;
+        Vector3 dir = (collectible.position - start).normalized;
+        float distance = Vector3.Distance(start, collectible.position);
+
+        if (Physics.Raycast(start, dir, out RaycastHit hit, distance))
         {
-            return false; // มีสิ่งกีดขวาง
+            if (hit.collider.CompareTag("Wall"))
+            {
+                return false;
+            }
         }
 
         return true;
     }
+
+
 
     private Transform GetVisibleCollectible()
     {
@@ -287,7 +295,7 @@ public class PlayerAgent : Agent
         var c = actionsOut.ContinuousActions;
 
         c[0] = Input.GetAxis("Vertical");             // Move forward/backward
-        c[1] = Input.GetAxis("Horizontal");           // เMove left/right
+        c[1] = Input.GetAxis("Horizontal");           // Move left/right
         c[2] = Input.GetKey(KeyCode.Space) ? 1f : 0f; // Jump
         c[3] = Input.GetAxis("Mouse X");              // Rotate camera
         c[4] = Input.GetKey(KeyCode.LeftShift) ? 1f : 0f; // Run

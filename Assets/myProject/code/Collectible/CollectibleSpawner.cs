@@ -8,6 +8,9 @@ public class CollectibleSpawner : MonoBehaviour
     public Transform[] spawnPoints; 
     public int spawnCount = 3;
 
+    private int currentCollectibles = 0;
+    public int maxActiveCollectibles = 10;
+
     void Start()
     {
         HideSpawnPoints();
@@ -28,6 +31,8 @@ public class CollectibleSpawner : MonoBehaviour
 
     void SpawnAtPoint(Transform point)
     {
+        if (currentCollectibles >= maxActiveCollectibles) return;
+
         var data = collectibles[Random.Range(0, collectibles.Length)];
         GameObject go = Instantiate(data.modelPrefab, point.position, point.rotation);
 
@@ -36,7 +41,15 @@ public class CollectibleSpawner : MonoBehaviour
         {
             col.spawner = this;
             col.spawnedFrom = point;
+            col.onCollected += HandleCollectibleCollected;
         }
+
+        currentCollectibles++;
+    }
+
+    void HandleCollectibleCollected()
+    {
+        currentCollectibles--;
     }
 
     public void RespawnCollectible(Transform spawnPoint, float delay)

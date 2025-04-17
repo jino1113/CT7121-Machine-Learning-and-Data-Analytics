@@ -153,6 +153,6 @@ MonoBehaviour:
   floatAmplitude: 0.25
   floatFrequency: 1
   flashFrequency: 2
-  Respawn: 30
+  Respawn: 60
   spawner: {fileID: 0}
   spawnedFrom: {fileID: 0}

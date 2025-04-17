@@ -19,6 +19,8 @@ public class Collectible : MonoBehaviour
     public CollectibleSpawner spawner;
     public Transform spawnedFrom;
 
+    public System.Action onCollected;
+
     private void Start()
     {
         startPos = transform.position;
@@ -53,6 +55,8 @@ public class Collectible : MonoBehaviour
 
             if (spawner != null && spawnedFrom != null)
                 spawner.RespawnCollectible(spawnedFrom, Respawn);
+
+            onCollected?.Invoke(); // ก่อน Destroy
 
             Destroy(gameObject);
             agent.AddReward(+3f);
