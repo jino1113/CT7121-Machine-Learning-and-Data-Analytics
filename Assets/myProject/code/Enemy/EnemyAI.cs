@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // ✅ Stop any initial movement
+        // Stop any initial movement
         agent.ResetPath();               // Cancel any planned path
         agent.velocity = Vector3.zero;   // Ensure it's not moving
 

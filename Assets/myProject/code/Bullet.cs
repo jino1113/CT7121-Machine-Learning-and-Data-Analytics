@@ -28,7 +28,6 @@ public class Bullet : MonoBehaviour
             }
         }
 
-        // ถ้ากระสุนชนกำแพง
         if (collision.gameObject.CompareTag("Wall"))
         {
             if (bounceCount < maxBounces)
@@ -42,7 +41,6 @@ public class Bullet : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-        // ถ้าชนศัตรูแบบไม่ใช้ Trigger
         else if (collision.gameObject.CompareTag("Enemy"))
         {
             DealDamage(collision.gameObject);
@@ -52,7 +50,6 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // ถ้าโดนศัตรูที่เป็น Trigger
         if (other.CompareTag("Enemy"))
         {
             DealDamage(other.gameObject);
@@ -65,7 +62,7 @@ public class Bullet : MonoBehaviour
         EnemyHealth enemy = target.GetComponent<EnemyHealth>();
         if (enemy != null)
         {
-            enemy.TakeDamage(1); // ทำดาเมจ / Apply damage
+            enemy.TakeDamage(1); // Apply damage
         }
     }
 }

@@ -21,11 +21,9 @@ public class PlayerAgent : Agent
 
     private Vector3 moveDirection = Vector3.zero;
 
-    //private float rotationX = 0;
-
-    public Transform target; // เป้าหมาย / Target to move toward
-
-    private PlayerShooting shooter; // ระบบยิงกระสุน / Bullet shooting system
+    public Transform target; // Target to move toward
+    public Transform collectible;
+    private PlayerShooting shooter; // Bullet shooting system
 
     public float detectRadius = 10f;         // Radius for detection
     public float detectDistance = 20f;       // How far to cast
@@ -36,25 +34,75 @@ public class PlayerAgent : Agent
     private float smoothRotationInput = 0f;
 
     public float inputSmoothTime = 0.1f; // Adjustable smoothing factor
+    private float timeSinceSeenEnemy = 0f;
+
+    private bool CanWalkToCollectible()
+    {
+        if (collectible == null) return false;
+
+        Vector3 dir = collectible.position - transform.position;
+        if (Physics.Raycast(transform.position + Vector3.up, dir.normalized, out RaycastHit hit, dir.magnitude, LayerMask.GetMask("Wall")))
+        {
+            return false; // มีสิ่งกีดขวาง
+        }
+
+        return true;
+    }
+
+    private Transform GetVisibleCollectible()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, detectDistance, LayerMask.GetMask("Collectible"));
+
+        foreach (Collider hit in hits)
+        {
+            Vector3 direction = hit.transform.position - playerCamera.transform.position;
+            float distance = Vector3.Distance(playerCamera.transform.position, hit.transform.position);
+
+            if (Physics.Raycast(playerCamera.transform.position, direction.normalized, out RaycastHit rayHit, distance))
+            {
+                if (rayHit.collider == hit)
+                {
+                    return hit.transform;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private GameObject FindNearestCollectible()
+    {
+        GameObject[] collectibles = GameObject.FindGameObjectsWithTag("Collectible"); // ตรวจ tag ให้ตรง
+        GameObject nearest = null;
+        float minDist = Mathf.Infinity;
+        Vector3 currentPos = transform.position;
+
+        foreach (GameObject c in collectibles)
+        {
+            float dist = Vector3.Distance(c.transform.position, currentPos);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = c;
+            }
+        }
+        return nearest;
+    }
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked; // ล็อกเมาส์ตรงกลางหน้าจอ / Lock the cursor in the center
-        Cursor.visible = false; // ซ่อนเมาส์ / Hide the cursor
-        //enemy = GameObject.FindWithTag("Enemy")?.transform;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public override void Initialize()
     {
         if (controller == null) controller = GetComponent<CharacterController>();
         if (playerCamera == null) playerCamera = Camera.main;
-        shooter = GetComponent<PlayerShooting>(); // ดึง component การยิง / Get the shooting component
+        shooter = GetComponent<PlayerShooting>(); 
     }
 
     public override void OnEpisodeBegin()
     {
-        // เปิดใช้งาน CharacterController ใหม่ (บางครั้งถูกปิดตอนตาย) 
-        // Re-enable CharacterController (may have been disabled when dying)
         CharacterController cc = GetComponent<CharacterController>();
         if (cc != null)
         {
@@ -62,37 +110,41 @@ public class PlayerAgent : Agent
             cc.enabled = true;
         }
 
-        // ย้ายผู้เล่นกลับไปยังตำแหน่งเริ่มต้น (spawnpoint)
-        // Move agent back to spawnpoint position
         transform.position = spawnpoint.transform.position;
         moveDirection = Vector3.zero;
         controller.Move(moveDirection * Time.deltaTime);
 
-        // รีเซ็ตเลือดของผู้เล่นและ UI HP
-        // Reset player HP and UI
         PlayerHealth health = GetComponent<PlayerHealth>();
         if (health != null)
         {
-            health.health = 3;                    // กำหนดเลือดใหม่ / Reset HP
-            health.UpdateHealthUI();              // อัปเดตข้อความ HP / Update HP text
+            health.health = 3;
+            health.UpdateHealthUI();
             if (health.playerUI != null)
-                health.playerUI.SetActive(true);  // แสดงกล่อง HP UI / Show HP UI
+                health.playerUI.SetActive(true);
         }
 
-        // สุ่มตำแหน่งใหม่ให้กับเป้าหมาย โดยอิงจาก spawnpoint
-        // Reset target position near the spawnpoint
-        if (target != null && spawnpoint != null)
+        // ค้นหา collectible ใกล้ที่สุด
+        GameObject nearestCollectible = FindNearestCollectible();
+        if (nearestCollectible != null)
         {
-            Vector3 basePos = spawnpoint.transform.position;
-            target.position = new Vector3(
-                basePos.x + Random.Range(-4f, 4f), // สุ่ม X / Randomize X
-                basePos.y,                         // คงค่า Y เดิม / Keep same Y
-                basePos.z + Random.Range(-4f, 4f)  // สุ่ม Z / Randomize Z
-            );
+            collectible = nearestCollectible.transform;
+        }
+        else if (spawnpoint != null)
+        {
+            // ตรวจให้แน่ใจว่าไม่มี dummy ซ้ำ
+            GameObject dummy = GameObject.Find("DummyCollectible");
+            if (dummy == null)
+            {
+                dummy = new GameObject("DummyCollectible");
+                dummy.transform.position = spawnpoint.transform.position + new Vector3(
+                    Random.Range(-4f, 4f),
+                    0f,
+                    Random.Range(-4f, 4f)
+                );
+            }
+            collectible = dummy.transform;
         }
 
-        // รีเซ็ตศัตรูในฉาก (ถ้ามี EnemySpawner อยู่ใน scene)
-        // Reset enemies (if EnemySpawner exists)
         EnemySpawner spawner = FindFirstObjectByType<EnemySpawner>();
         if (spawner != null)
         {
@@ -100,50 +152,53 @@ public class PlayerAgent : Agent
         }
     }
 
-
     public override void CollectObservations(VectorSensor sensor)
     {
-        // ตำแหน่งของตัวเอง / Own position
+        // position
         sensor.AddObservation(transform.localPosition);
 
-        // ตำแหน่งศัตรู (enemy) — อย่าลืม assign ให้ถูกใน inspector
         if (target != null)
         {
             sensor.AddObservation(target.localPosition);
 
-            // ระยะห่างถึงศัตรู
             Vector3 toEnemy = target.localPosition - transform.localPosition;
-            sensor.AddObservation(toEnemy.normalized); // ทิศทาง
-            sensor.AddObservation(toEnemy.magnitude);  // ระยะ
+            sensor.AddObservation(toEnemy.normalized); 
+            sensor.AddObservation(toEnemy.magnitude);  
         }
         else
         {
-            // กัน null
             sensor.AddObservation(Vector3.zero);
             sensor.AddObservation(Vector3.zero);
             sensor.AddObservation(0f);
         }
 
-        // ความเร็วของตัวเอง
         sensor.AddObservation(moveDirection);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
     {
+        // ตรวจสอบศัตรูและของสะสม
         target = EnemyVisibilityUtil.GetVisibleEnemy(transform, "Enemy", "Wall", detectDistance);
         bool seesEnemyClearly = target != null;
 
-        // Movement penalty
-        Vector3 flatMovement = moveDirection;
-        flatMovement.y = 0f; // Ignore vertical movement
-        float movementAmount = flatMovement.magnitude;
+        Transform seenCollectible = GetVisibleCollectible();
+        bool seesCollectible = seenCollectible != null;
 
-        if (movementAmount > 0.1f)
+        // รีเซ็ต collectible ถ้าโดนเก็บไปแล้ว
+        if (collectible == null || !collectible.gameObject.activeInHierarchy)
         {
-            AddReward(-movementAmount * 0.001f); // Penalize slight for moving too much
+            collectible = seesCollectible ? seenCollectible : FindNearestCollectible()?.transform;
         }
 
-        // Get raw inputs from actions
+        // ตรวจจับความเคลื่อนไหวเพื่อลดรางวัล
+        Vector3 flatMovement = moveDirection;
+        flatMovement.y = 0f;
+        if (flatMovement.magnitude > 0.1f)
+        {
+            AddReward(-flatMovement.magnitude * 0.001f);
+        }
+
+        // รับค่า Input
         float rawMove = Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);
         float rawStrafe = Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);
         bool jump = actions.ContinuousActions[2] > 0.5f;
@@ -153,24 +208,45 @@ public class PlayerAgent : Agent
 
         float speed = isRunning ? runSpeed : walkSpeed;
 
+        // ถ้าเห็นศัตรู
         if (seesEnemyClearly)
         {
-            // Stop movement and shoot when enemy is seen
-            rawMove = 0f;
-            rawStrafe = 0f;
-            shootInput = 1f; // Shoot continuously
+            shootInput = 1f;
+
+            // ถ้าเห็นของสะสม → เดินช้าๆ ไปเก็บ
+            if (collectible != null && CanWalkToCollectible())
+            {
+                Vector3 dirToCollectible = (collectible.position - transform.position).normalized;
+                rawMove = Vector3.Dot(transform.forward, dirToCollectible) * 0.2f;
+                rawStrafe = Vector3.Dot(transform.right, dirToCollectible) * 0.2f;
+            }
+
+            // ไม่ต้องถอยหลัง ไม่ต้องดันออก ไม่ต้องขยับมั่วแล้ว
+            timeSinceSeenEnemy += Time.deltaTime;
+        }
+        else
+        {
+            timeSinceSeenEnemy = 0f;
+
+            // ถ้าไม่เห็นศัตรู เดินไปหา collectible ปกติ
+            if (collectible != null && CanWalkToCollectible())
+            {
+                Vector3 dirToCollectible = (collectible.position - transform.position).normalized;
+                rawMove = Vector3.Dot(transform.forward, dirToCollectible);
+                rawStrafe = Vector3.Dot(transform.right, dirToCollectible);
+            }
         }
 
-        // Shooting (shooting only happens when player sees the enemy)
+        // ยิง
         if (shooter != null && seesEnemyClearly)
             shooter.TryShoot(shootInput);
 
-        // Smooth inputs
+        // อินพุตลื่นไหล
         smoothMoveInput = Mathf.Lerp(smoothMoveInput, rawMove, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
         smoothStrafeInput = Mathf.Lerp(smoothStrafeInput, rawStrafe, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
         smoothRotationInput = Mathf.Lerp(smoothRotationInput, rawRotation, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
 
-        // Movement
+        // เคลื่อนที่
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
         float movementY = moveDirection.y;
@@ -185,40 +261,36 @@ public class PlayerAgent : Agent
 
         controller.Move(moveDirection * Time.deltaTime);
 
-        // Smooth rotation
+        // หมุน
         transform.Rotate(0, smoothRotationInput * rotationSpeed * Time.deltaTime, 0);
 
-        // Reward shaping
+        // หากอยู่ใกล้ศัตรูและอยู่ข้างหน้าให้ถอย
         if (target != null)
         {
             Vector3 dirToEnemy = (target.position - transform.position).normalized;
             float distanceToEnemy = Vector3.Distance(transform.position, target.position);
-
-            // Check if enemy is in front
             float forwardDot = Vector3.Dot(transform.forward, dirToEnemy);
 
             if (distanceToEnemy < 10f && forwardDot > 0.5f)
             {
-                // If enemy is close and in front, move backward
                 rawMove = -1f;
                 rawStrafe = 0f;
             }
         }
 
-        // อยู่รอดได้ = ได้รางวัลเล็กน้อย
+        // รางวัลเพิ่มตามเวลา
         AddReward(0.001f * Time.deltaTime);
     }
-
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var c = actionsOut.ContinuousActions;
 
-        c[0] = Input.GetAxis("Vertical");             // เดินหน้า/ถอยหลัง / Move forward/backward
-        c[1] = Input.GetAxis("Horizontal");           // เดินซ้าย/ขวา / Move left/right
-        c[2] = Input.GetKey(KeyCode.Space) ? 1f : 0f; // กระโดด / Jump
-        c[3] = Input.GetAxis("Mouse X");              // หมุนกล้อง / Rotate camera
-        c[4] = Input.GetKey(KeyCode.LeftShift) ? 1f : 0f; // วิ่ง / Run
-        c[5] = Input.GetMouseButton(0) ? 1f : 0f;     // ยิง / Shoot
+        c[0] = Input.GetAxis("Vertical");             // Move forward/backward
+        c[1] = Input.GetAxis("Horizontal");           // เMove left/right
+        c[2] = Input.GetKey(KeyCode.Space) ? 1f : 0f; // Jump
+        c[3] = Input.GetAxis("Mouse X");              // Rotate camera
+        c[4] = Input.GetKey(KeyCode.LeftShift) ? 1f : 0f; // Run
+        c[5] = Input.GetMouseButton(0) ? 1f : 0f;     // Shoot
     }
 }

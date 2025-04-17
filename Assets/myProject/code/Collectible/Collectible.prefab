@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 707341757671755303}
   m_Layer: 0
   m_Name: Collectible
-  m_TagString: Untagged
+  m_TagString: Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -149,3 +149,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 195f3190a71a83a41a7b9ca21106a516, type: 2}
+  rotationSpeed: 90
+  floatAmplitude: 0.25
+  floatFrequency: 1
+  flashFrequency: 2
+  Respawn: 30
+  spawner: {fileID: 0}
+  spawnedFrom: {fileID: 0}

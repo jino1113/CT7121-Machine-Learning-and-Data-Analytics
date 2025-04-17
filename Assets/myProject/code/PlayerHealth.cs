@@ -56,7 +56,7 @@ public class PlayerHealth : MonoBehaviour
             }
 
             //if (playerUI != null)
-            //    playerUI.SetActive(false); // ซ่อน UI
+            //    playerUI.SetActive(false);
         }
     }
 

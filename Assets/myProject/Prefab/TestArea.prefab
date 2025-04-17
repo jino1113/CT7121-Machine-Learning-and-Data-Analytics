@@ -880,19 +880,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: boxWidth
-      value: 51.7
+      value: 201.3
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: boxHeight
-      value: 19.04
+      value: 21.2
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: spawnRate
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: maxEnemies
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: detectionRadius

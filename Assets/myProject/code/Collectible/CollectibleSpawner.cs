@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+
 
 public class CollectibleSpawner : MonoBehaviour
 {
@@ -27,6 +29,24 @@ public class CollectibleSpawner : MonoBehaviour
     void SpawnAtPoint(Transform point)
     {
         var data = collectibles[Random.Range(0, collectibles.Length)];
-        Instantiate(data.modelPrefab, point.position, point.rotation);
+        GameObject go = Instantiate(data.modelPrefab, point.position, point.rotation);
+
+        var col = go.GetComponent<Collectible>();
+        if (col != null)
+        {
+            col.spawner = this;
+            col.spawnedFrom = point;
+        }
+    }
+
+    public void RespawnCollectible(Transform spawnPoint, float delay)
+    {
+        StartCoroutine(RespawnCoroutine(spawnPoint, delay));
+    }
+
+    private IEnumerator RespawnCoroutine(Transform point, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SpawnAtPoint(point);
     }
 }

@@ -11,6 +11,7 @@ TagManager:
   - flower_plant
   - nectar
   - boundary
+  - Collectible
   layers:
   - Default
   - TransparentFX

@@ -1,3 +1,4 @@
+using Unity.MLAgents;
 using UnityEngine;
 
 public class Collectible : MonoBehaviour
@@ -8,11 +9,15 @@ public class Collectible : MonoBehaviour
     public float rotationSpeed = 90f;         
     public float floatAmplitude = 0.25f;      
     public float floatFrequency = 1f;         
-    public float flashFrequency = 2f;         
+    public float flashFrequency = 2f;
+    public float Respawn;
 
     private Vector3 startPos;
     private Renderer rend;
     private Color originalColor;
+
+    public CollectibleSpawner spawner;
+    public Transform spawnedFrom;
 
     private void Start()
     {
@@ -43,8 +48,14 @@ public class Collectible : MonoBehaviour
     {
         if (other.CompareTag("player"))
         {
+            Agent agent = GameObject.FindWithTag("player")?.GetComponent<Agent>();
             UIManager.Instance.AddCollectible(data.collectibleName);
+
+            if (spawner != null && spawnedFrom != null)
+                spawner.RespawnCollectible(spawnedFrom, Respawn);
+
             Destroy(gameObject);
+            agent.AddReward(+3f);
         }
     }
 }
