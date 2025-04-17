@@ -1,0 +1,50 @@
+using UnityEngine;
+
+public class Collectible : MonoBehaviour
+{
+    public CollectibleData data;
+
+    [Header("Visual Effects Settings")]
+    public float rotationSpeed = 90f;         
+    public float floatAmplitude = 0.25f;      
+    public float floatFrequency = 1f;         
+    public float flashFrequency = 2f;         
+
+    private Vector3 startPos;
+    private Renderer rend;
+    private Color originalColor;
+
+    private void Start()
+    {
+        startPos = transform.position;
+        rend = GetComponent<Renderer>();
+
+        if (rend != null)
+            originalColor = rend.material.color;
+    }
+
+    private void Update()
+    {
+        transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime, Space.World);
+
+        float newY = startPos.y + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
+        transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+
+        if (rend != null)
+        {
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * flashFrequency));
+            Color c = originalColor;
+            c.a = alpha;
+            rend.material.color = c;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("player"))
+        {
+            UIManager.Instance.AddCollectible(data.collectibleName);
+            Destroy(gameObject);
+        }
+    }
+}

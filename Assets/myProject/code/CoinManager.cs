@@ -29,7 +29,7 @@ public class CoinManager : MonoBehaviour
     {
         if (coinText != null)
         {
-            coinText.text = "Coin: " + coins;
+            coinText.text = "Kill: " + coins;
             Debug.Log("Coin UI Updated to: " + coinText.text);
         }
         else
