@@ -27,10 +27,11 @@ public class PlayerAgent : Agent
     public float inputSmoothTime = 0.1f;
 
     public PlayerHealth playerHealth;
+
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked; 
-        Cursor.visible = false;                  
+        Cursor.lockState = CursorLockMode.Locked; // Lock cursor in center
+        Cursor.visible = false;                   // Hide cursor
     }
 
     public override void Initialize()
@@ -48,12 +49,33 @@ public class PlayerAgent : Agent
         moveDirection = Vector3.zero;
         controller.enabled = true;
 
+        // Reset player health
+        playerHealth.playerhealth = 5;
+        playerHealth.UpdateHealthUI();
+
+        if (playerHealth.playerUI != null)
+            playerHealth.playerUI.SetActive(true);
+
+        // Reset collectible UI
+        if (CollectibleManager.Instance != null)
+        {
+            CollectibleManager.Instance.ResetCollectible();
+        }
+
+        // Reset kill UI
+        if (KillCoutManager.Instance != null)
+        {
+            KillCoutManager.Instance.ResetKillCount();
+        }
+
+        // Reset wave manager
         WaveManager wm = FindFirstObjectByType<WaveManager>();
         if (wm != null)
         {
             wm.ResetWaves();
         }
 
+        // Randomize collectible position
         if (collectible != null)
         {
             collectible.localPosition = new Vector3(
@@ -63,6 +85,7 @@ public class PlayerAgent : Agent
             );
         }
 
+        // Randomize enemy position
         if (targetEnemy != null)
         {
             targetEnemy.localPosition = new Vector3(
@@ -108,6 +131,7 @@ public class PlayerAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions)
     {
+        // For Smooth Movement Only!!!!
         float rawMove = Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);
         float rawStrafe = Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);
         bool jump = actions.ContinuousActions[2] > 0.5f;
@@ -124,6 +148,22 @@ public class PlayerAgent : Agent
 
         moveDirection = (forward * smoothMoveInput + right * smoothStrafeInput) * walkSpeed;
         moveDirection.y = yVelocity;
+
+        if (collectible == null || !collectible.gameObject.activeInHierarchy)
+        {
+            GameObject found = GameObject.FindWithTag("Collectible");
+            if (found != null)
+                collectible = found.transform;
+        }
+
+        if (targetEnemy == null || !targetEnemy.gameObject.activeInHierarchy)
+        {
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            if (enemies.Length > 0)
+            {
+                targetEnemy = enemies[Random.Range(0, enemies.Length)].transform;
+            }
+        }
 
         // Check if hitting a wall
         RaycastHit hit;
@@ -164,7 +204,8 @@ public class PlayerAgent : Agent
             }
         }
 
-        Vector3 flatMovement = moveDirection; flatMovement.y = 0;
+        Vector3 flatMovement = moveDirection;
+        flatMovement.y = 0;
         if (flatMovement.magnitude > 0.1f)
         {
             reward -= flatMovement.magnitude * 0.001f;
@@ -176,7 +217,7 @@ public class PlayerAgent : Agent
             EndEpisode();
         }
 
-        if(playerHealth.playerhealth == 0)
+        if (playerHealth != null && playerHealth.playerhealth <= 0)
         {
             reward -= 5f;
             EndEpisode();

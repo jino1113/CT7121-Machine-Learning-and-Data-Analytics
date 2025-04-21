@@ -37,7 +37,7 @@ public class WaveManager : MonoBehaviour
             spawner.enabled = true;  // Just in case you pause them between waves
         }
 
-        Debug.Log("Wave " + currentWave + " started!");
+        //Debug.Log("Wave " + currentWave + " started!");
     }
 
     void UpdateWaveText()
@@ -45,7 +45,7 @@ public class WaveManager : MonoBehaviour
         if (waveText != null)
         {
             waveText.text = "Wave: " + currentWave;
-            Debug.Log("Updated Wave Text to: " + currentWave);
+            //Debug.Log("Updated Wave Text to: " + currentWave);
         }
         else
         {

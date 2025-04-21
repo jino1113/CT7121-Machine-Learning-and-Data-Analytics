@@ -51,7 +51,7 @@ public class Collectible : MonoBehaviour
         if (other.CompareTag("player"))
         {
             Agent agent = GameObject.FindWithTag("player")?.GetComponent<Agent>();
-            UIManager.Instance.AddCollectible(data.collectibleName);
+            CollectibleManager.Instance.AddCollectible(data.collectibleName);
 
             if (spawner != null && spawnedFrom != null)
                 spawner.RespawnCollectible(spawnedFrom, Respawn);

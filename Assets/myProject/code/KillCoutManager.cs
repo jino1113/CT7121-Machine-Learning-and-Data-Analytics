@@ -1,12 +1,12 @@
 using TMPro;
 using UnityEngine;
 
-public class CoinManager : MonoBehaviour
+public class KillCoutManager : MonoBehaviour
 {
-    public static CoinManager Instance;
+    public static KillCoutManager Instance;
 
     public TMP_Text coinText;
-    private int coins = 0;
+    private int Kill = 0;
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class CoinManager : MonoBehaviour
 
     public void AddCoin(int amount)
     {
-        coins += amount;
+        Kill += amount;
         UpdateCoinUI();
     }
 
@@ -29,12 +29,18 @@ public class CoinManager : MonoBehaviour
     {
         if (coinText != null)
         {
-            coinText.text = "Kill: " + coins;
-            Debug.Log("Coin UI Updated to: " + coinText.text);
+            coinText.text = "Kill: " + Kill;
+            //Debug.Log("Coin UI Updated to: " + coinText.text);
         }
         else
         {
             Debug.LogWarning("coinText is null!");
         }
+    }
+
+    public void ResetKillCount()
+    {
+        Kill = 0;
+        UpdateCoinUI();
     }
 }

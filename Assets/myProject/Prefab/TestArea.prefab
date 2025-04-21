@@ -289,6 +289,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3955334815606783367}
     - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      propertyPath: playerHealth
+      value: 
+      objectReference: {fileID: 1691971771273428886}
+    - target: {fileID: 4402919154400566600, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
       propertyPath: rotationSpeed
       value: 500
       objectReference: {fileID: 0}
@@ -347,6 +351,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 261168593634824189, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
   m_PrefabInstance: {fileID: 660385127587183093}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1691971771273428886 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2184597228607587939, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+  m_PrefabInstance: {fileID: 660385127587183093}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8605929935300261239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aee9b480744ede24282c68e7c416171b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &2304920569092201906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1645663027748643911, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}

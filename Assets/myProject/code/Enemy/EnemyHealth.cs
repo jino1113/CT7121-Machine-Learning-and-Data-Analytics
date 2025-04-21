@@ -38,11 +38,11 @@ public class EnemyHealth : MonoBehaviour
             waveManager.OnEnemyKilled();
         }
 
-        if (CoinManager.Instance != null)
+        if (KillCoutManager.Instance != null)
         {
             agent.AddReward(+1f); // เพิ่มรางวัลเมื่อฆ่าศัตรู / Give reward when enemy is killed
-            CoinManager.Instance.AddCoin(1);
-            Debug.Log("Coin Added"); // ตรวจว่าเรียกจริง
+            KillCoutManager.Instance.AddCoin(1);
+            Debug.Log("kill Added"); // ตรวจว่าเรียกจริง
         }
 
         // ทำลายวัตถุของศัตรู / Destroy enemy object

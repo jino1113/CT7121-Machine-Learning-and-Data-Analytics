@@ -1,9 +1,9 @@
 using UnityEngine;
 using TMPro;
 
-public class UIManager : MonoBehaviour
+public class CollectibleManager : MonoBehaviour
 {
-    public static UIManager Instance;
+    public static CollectibleManager Instance;
 
     public TextMeshProUGUI collectibleText;
     private int collectibleCount = 0;
@@ -27,4 +27,12 @@ public class UIManager : MonoBehaviour
         if (collectibleText != null)
             collectibleText.text = $"collectible: {collectibleCount}";
     }
+
+    public void ResetCollectible()
+    {
+        collectibleCount = 0;
+        if (collectibleText != null)
+            collectibleText.text = "collectible: 0";
+    }
+
 }
