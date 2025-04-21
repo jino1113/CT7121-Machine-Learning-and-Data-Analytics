@@ -5,7 +5,7 @@ using TMPro;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int health = 5;
+    public int playerhealth = 5;
 
     public GameOverUI gameOverUI;     // UI Game Over
     public GameObject playerUI;       // กล่อง UI ที่ครอบ HP ทั้งหมด
@@ -21,8 +21,8 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        health -= amount;
-        Debug.Log("Player HP: " + health);
+        playerhealth -= amount;
+        Debug.Log("Player HP: " + playerhealth);
 
         var agent = GetComponent<Agent>();
         if (agent != null)
@@ -32,14 +32,14 @@ public class PlayerHealth : MonoBehaviour
 
         UpdateHealthUI(); // อัปเดต UI HP
 
-        if (health <= 0)
+        if (playerhealth <= 0)
         {
             Debug.Log("Player Died!");
             agent.AddReward(-5f);
 
             if (agent != null)
             {
-                agent.EndEpisode(); // จบ Episode ทันที
+                //agent.EndEpisode(); // จบ Episode ทันที
 
                 if (behaviorParameters == null)
                     Debug.LogWarning("behaviorParameters is null");
@@ -50,8 +50,8 @@ public class PlayerHealth : MonoBehaviour
                     behaviorParameters.BehaviorType == BehaviorType.HeuristicOnly &&
                     gameOverUI != null)
                 {
-                    Debug.Log("ShowGameOver() เรียกแล้ว");
-                    gameOverUI.ShowGameOver();
+                    //Debug.Log("ShowGameOver() เรียกแล้ว");
+                    //gameOverUI.ShowGameOver();
                 }
             }
 
@@ -63,6 +63,6 @@ public class PlayerHealth : MonoBehaviour
     public void UpdateHealthUI()
     {
         if (healthText != null)
-            healthText.text = "HP: " + health.ToString();
+            healthText.text = "HP: " + playerhealth.ToString();
     }
 }

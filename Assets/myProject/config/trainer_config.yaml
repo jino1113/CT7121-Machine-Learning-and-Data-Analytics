@@ -18,11 +18,6 @@ behaviors:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-    max_steps: 50000
+    max_steps: 100000
     summary_freq: 1000
     time_horizon: 32
-    self_play:
-      window: 5  # Number of past versions stored for self-play
-      play_against_latest_model_ratio: 0.2  # 50% of the time, play against the latest model
-      save_steps: 500  # Save model every X steps
-      swap_steps: 1000  # How often to swap opponents

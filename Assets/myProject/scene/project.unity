@@ -559,17 +559,6 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!114 &484253355 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6029247721265284845, guid: 3bbabf9dfbd3b994fbf954b288507fc5, type: 3}
-  m_PrefabInstance: {fileID: 1970924214300178070}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &945856666
 GameObject:
   m_ObjectHideFlags: 0
@@ -1167,19 +1156,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24f42809e4e4562499d6b362cbd05b3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1727931233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 206462950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34cb760b754c6ce468cdcb6033e66676, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  collectibleText: {fileID: 484253355}
 --- !u!1001 &1979043449
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1195,6 +1171,14 @@ PrefabInstance:
     - target: {fileID: 8095104414963244, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: m_LocalPosition.z
       value: 7.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 1070723712158599147, guid: 22e75d1258201914bae28618da9031a9, type: 3}
+      propertyPath: m_MaxRayDegrees
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1070723712158599147, guid: 22e75d1258201914bae28618da9031a9, type: 3}
+      propertyPath: m_RaysPerDirection
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1691971771273428886, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: playerUI
@@ -1223,10 +1207,14 @@ PrefabInstance:
     - target: {fileID: 3787706660550972109, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: b3369a2d1155c024fbd49a62927d6bc3, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 3787706660550972109, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: m_BehaviorType
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3933270410464716088, guid: 22e75d1258201914bae28618da9031a9, type: 3}
+      propertyPath: m_Name
+      value: Face
       objectReference: {fileID: 0}
     - target: {fileID: 5506632790680105294, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1243,6 +1231,18 @@ PrefabInstance:
     - target: {fileID: 6957008093209664182, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: maxEnemies
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7042405486332000346, guid: 22e75d1258201914bae28618da9031a9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 23.634
+      objectReference: {fileID: 0}
+    - target: {fileID: 7042405486332000346, guid: 22e75d1258201914bae28618da9031a9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -13.675
+      objectReference: {fileID: 0}
+    - target: {fileID: 7042405486332000346, guid: 22e75d1258201914bae28618da9031a9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5.887
       objectReference: {fileID: 0}
     - target: {fileID: 7194578411716172356, guid: 22e75d1258201914bae28618da9031a9, type: 3}
       propertyPath: m_NavMeshData
@@ -1612,10 +1612,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 434032842972977324, guid: 3bbabf9dfbd3b994fbf954b288507fc5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1727931233}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3bbabf9dfbd3b994fbf954b288507fc5, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

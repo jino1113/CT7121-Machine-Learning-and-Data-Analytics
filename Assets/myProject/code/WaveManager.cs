@@ -24,7 +24,7 @@ public class WaveManager : MonoBehaviour
         {
             enemiesKilled = 0;
             currentWave++;
-            UpdateWaveText(); // ✅ This must be here
+            UpdateWaveText(); // This must be here
             StartNewWave();
         }
     }
@@ -53,4 +53,10 @@ public class WaveManager : MonoBehaviour
         }
     }
 
+    public void ResetWaves()
+    {
+        currentWave = 1;
+        enemiesKilled = 0;
+        UpdateWaveText();
+    }
 }

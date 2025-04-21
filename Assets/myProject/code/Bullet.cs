@@ -1,32 +1,26 @@
-using UnityEngine;
+๏ปฟusing UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed = 20f;             // ความเร็วกระสุน / Bullet speed
-    public float lifeTime = 5f;           // เวลาชีวิตกระสุน / Bullet lifetime
-    public int maxBounces = 3;            // จำนวนครั้งที่เด้งได้ / Max number of bounces
+    public float speed = 20f;
+    public float lifeTime = 5f;
+    public int maxBounces = 3;
 
-    private int bounceCount = 0;          // จำนวนครั้งที่เด้งแล้ว / Current bounce count
+    private int bounceCount = 0;
     private Rigidbody rb;
+
+    [HideInInspector] public PlayerAgent agent;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.velocity = transform.forward * speed; // เคลื่อนที่ไปข้างหน้า / Move forward
-        Destroy(gameObject, lifeTime);           // ทำลายเมื่อหมดเวลา / Auto destroy
+        rb.velocity = transform.forward * speed;
+        Destroy(gameObject, lifeTime); // Auto destroy after time
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (rb == null)
-        {
-            rb = GetComponent<Rigidbody>();
-            if (rb == null)
-            {
-                Debug.LogError("Rigidbody not found on Bullet!");
-                return;
-            }
-        }
+        if (rb == null) return;
 
         if (collision.gameObject.CompareTag("Wall"))
         {
@@ -62,7 +56,12 @@ public class Bullet : MonoBehaviour
         EnemyHealth enemy = target.GetComponent<EnemyHealth>();
         if (enemy != null)
         {
-            enemy.TakeDamage(1); // Apply damage
+            enemy.TakeDamage(1);
+
+            if (agent != null)
+            {
+                agent.AddReward(1f);
+            }
         }
     }
 }

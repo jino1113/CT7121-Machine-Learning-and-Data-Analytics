@@ -38,17 +38,11 @@ behaviors:
     init_path: null
     keep_checkpoints: 5
     even_checkpoints: false
-    max_steps: 50000
+    max_steps: 100000
     time_horizon: 32
     summary_freq: 1000
     threaded: false
-    self_play:
-      save_steps: 500
-      team_change: 2500
-      swap_steps: 1000
-      window: 5
-      play_against_latest_model_ratio: 0.2
-      initial_elo: 1200.0
+    self_play: null
     behavioral_cloning: null
 env_settings:
   env_path: null
@@ -75,8 +69,8 @@ checkpoint_settings:
   run_id: my_run
   initialize_from: null
   load_model: false
-  resume: true
-  force: false
+  resume: false
+  force: true
   train_model: false
   inference: false
   results_dir: results
