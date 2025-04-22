@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -15,9 +16,14 @@ public class CollectibleSpawner : MonoBehaviour
     {
         HideSpawnPoints();
 
-        for (int i = 0; i < spawnCount && i < spawnPoints.Length; i++)
+        List<Transform> availablePoints = new List<Transform>(spawnPoints);
+        for (int i = 0; i < spawnCount && availablePoints.Count > 0; i++)
         {
-            SpawnAtPoint(spawnPoints[i]);
+            int randomIndex = Random.Range(0, availablePoints.Count);
+            Transform point = availablePoints[randomIndex];
+
+            SpawnAtPoint(point);
+            availablePoints.RemoveAt(randomIndex); // เอาจุดนั้นออกจาก list
         }
     }
 
@@ -33,6 +39,15 @@ public class CollectibleSpawner : MonoBehaviour
     {
         if (currentCollectibles >= maxActiveCollectibles) return;
 
+        Collider[] hits = Physics.OverlapSphere(point.position, 0.5f);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Collectible"))
+            {
+                return; 
+            }
+        }
+
         var data = collectibles[Random.Range(0, collectibles.Length)];
         GameObject go = Instantiate(data.modelPrefab, point.position, point.rotation);
 
@@ -46,6 +61,7 @@ public class CollectibleSpawner : MonoBehaviour
 
         currentCollectibles++;
     }
+
 
     void HandleCollectibleCollected()
     {

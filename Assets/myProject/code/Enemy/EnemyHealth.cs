@@ -24,28 +24,24 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
-        // ตรวจสอบว่าเจอ GameObject ที่มี tag "player" และมี Agent หรือไม่ / Check if we can find the Agent from the player tag
         Agent agent = GameObject.FindWithTag("player")?.GetComponent<Agent>();
         if (agent != null)
         {
-            agent.AddReward(+1f); // เพิ่มรางวัลเมื่อฆ่าศัตรู / Give reward when enemy is killed
-        }
-
-        // Notify WaveManager
-        if (waveManager != null)
-        {
-            agent.AddReward(+5f);
-            waveManager.OnEnemyKilled();
+            agent.AddReward(+1f);
         }
 
         if (KillCoutManager.Instance != null)
         {
-            agent.AddReward(+1f); // เพิ่มรางวัลเมื่อฆ่าศัตรู / Give reward when enemy is killed
             KillCoutManager.Instance.AddCoin(1);
-            Debug.Log("kill Added"); // ตรวจว่าเรียกจริง
+            //agent?.AddReward(+0.3f); 
         }
 
-        // ทำลายวัตถุของศัตรู / Destroy enemy object
+        if (waveManager != null)
+        {
+            //agent?.AddReward(+0.2f); 
+            waveManager.OnEnemyKilled();
+        }
+
         Destroy(gameObject);
     }
 }

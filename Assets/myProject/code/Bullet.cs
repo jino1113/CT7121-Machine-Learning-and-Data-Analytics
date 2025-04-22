@@ -60,7 +60,7 @@ public class Bullet : MonoBehaviour
 
             if (agent != null)
             {
-                agent.AddReward(1f);
+                agent.AddReward(0.5f);
             }
         }
     }

@@ -13,7 +13,7 @@ public class BulletHit : MonoBehaviour
         }
         else
         {
-            agent.AddReward(-0.1f); 
+            agent.AddReward(-0.5f); 
         }
 
         Destroy(gameObject);

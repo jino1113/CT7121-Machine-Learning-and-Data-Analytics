@@ -142,6 +142,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3952599313834891135}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7810334607950794656
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5655397439511463664}
+  - component: {fileID: 478258831918065508}
+  m_Layer: 0
+  m_Name: EnemySensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5655397439511463664
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7810334607950794656}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.064906664, y: 0.39462486, z: 0.4983695}
+  m_LocalScale: {x: 0.88270044, y: 0.6042086, z: 1.2364404}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 771790872342656520}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &478258831918065508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7810334607950794656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb6b867a41448888c1cd4f99643ad71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: EnemySensor
+  m_DetectableTags:
+  - Enemy
+  m_RaysPerDirection: 15
+  m_MaxRayDegrees: 70
+  m_SphereCastRadius: 0.5
+  m_RayLength: 20
+  m_RayLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  m_ObservationStacks: 1
+  m_AlternatingRayOrder: 1
+  m_UseBatchedRaycasts: 0
+  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
+  rayMissColor: {r: 1, g: 1, b: 1, a: 1}
+  m_StartVerticalOffset: 0
+  m_EndVerticalOffset: 0
 --- !u!1001 &7879910581224697
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -343,7 +404,10 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 6380760646950884038, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 261168593634824189, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5655397439511463664}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2bfd448d659e2674a972485f05d8131f, type: 3}
 --- !u!4 &771790872342656520 stripped
@@ -904,11 +968,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: spawnRate
-      value: 2
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: maxEnemies
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2535725376682223789, guid: 9824de43af5a18b4eb356059616e7511, type: 3}
       propertyPath: detectionRadius

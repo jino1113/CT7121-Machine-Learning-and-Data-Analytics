@@ -35,7 +35,7 @@ public class PlayerHealth : MonoBehaviour
         if (playerhealth <= 0)
         {
             Debug.Log("Player Died!");
-            agent.AddReward(-5f);
+            //agent.AddReward(-5f);
 
             if (agent != null)
             {

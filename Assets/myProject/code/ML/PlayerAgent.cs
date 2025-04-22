@@ -28,6 +28,19 @@ public class PlayerAgent : Agent
 
     public PlayerHealth playerHealth;
 
+    private Transform cachedCollectible;
+    private float collectibleSwitchThreshold = 2.5f;
+
+    public LayerMask collectibleLayer;
+    public LayerMask enemyLayer;
+    //
+    [Header("Debug / Spinbot")]
+    public bool useSpinBot;
+
+    private Vector3 lastPosition;
+    private int idleStepCount = 0;
+    public int maxIdleSteps = 500;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor in center
@@ -36,6 +49,9 @@ public class PlayerAgent : Agent
 
     public override void Initialize()
     {
+        lastPosition = transform.position;
+        idleStepCount = 0;
+
         controller = GetComponent<CharacterController>();
         shooter = GetComponent<PlayerShooting>();
         if (playerCamera == null)
@@ -44,6 +60,15 @@ public class PlayerAgent : Agent
 
     public override void OnEpisodeBegin()
     {
+        lastPosition = transform.position;
+        idleStepCount = 0;
+
+        SensorComponent[] sensors = GetComponentsInChildren<SensorComponent>();
+        foreach (var s in sensors)
+        {
+            Debug.Log("Sensor: " + s.GetType().Name);
+        }
+
         controller.enabled = false;
         transform.position = spawnpoint != null ? spawnpoint.transform.position : Vector3.zero;
         moveDirection = Vector3.zero;
@@ -75,25 +100,25 @@ public class PlayerAgent : Agent
             wm.ResetWaves();
         }
 
-        // Randomize collectible position
-        if (collectible != null)
-        {
-            collectible.localPosition = new Vector3(
-                Random.Range(-4f, 4f),
-                0.5f,
-                Random.Range(-4f, 4f)
-            );
-        }
+        //// Randomize collectible position
+        //if (collectible != null)
+        //{
+        //    collectible.localPosition = new Vector3(
+        //        Random.Range(-4f, 4f),
+        //        0.5f,
+        //        Random.Range(-4f, 4f)
+        //    );
+        //}
 
-        // Randomize enemy position
-        if (targetEnemy != null)
-        {
-            targetEnemy.localPosition = new Vector3(
-                Random.Range(-4f, 4f),
-                0.5f,
-                Random.Range(-4f, 4f)
-            );
-        }
+        //// Randomize enemy position
+        //if (targetEnemy != null)
+        //{
+        //    targetEnemy.localPosition = new Vector3(
+        //        Random.Range(-4f, 4f),
+        //        0.5f,
+        //        Random.Range(-4f, 4f)
+        //    );
+        //}
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -135,12 +160,23 @@ public class PlayerAgent : Agent
         float rawMove = Mathf.Clamp(actions.ContinuousActions[0], -1f, 1f);
         float rawStrafe = Mathf.Clamp(actions.ContinuousActions[1], -1f, 1f);
         bool jump = actions.ContinuousActions[2] > 0.5f;
-        float rawRotation = Mathf.Clamp(actions.ContinuousActions[3], -1f, 1f);
+
+        // useSpinBot
+        if (useSpinBot)
+        {
+            smoothRotationInput = 1f;
+        }
+        else
+        {
+            float rawRotation = Mathf.Clamp(actions.ContinuousActions[3], -1f, 1f);
+            smoothRotationInput = Mathf.Lerp(smoothRotationInput, rawRotation, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
+        }
+
         float shootInput = actions.ContinuousActions.Length > 4 ? actions.ContinuousActions[4] : 0f;
+
 
         smoothMoveInput = Mathf.Lerp(smoothMoveInput, rawMove, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
         smoothStrafeInput = Mathf.Lerp(smoothStrafeInput, rawStrafe, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
-        smoothRotationInput = Mathf.Lerp(smoothRotationInput, rawRotation, 1 - Mathf.Exp(-Time.deltaTime / inputSmoothTime));
 
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
@@ -149,21 +185,10 @@ public class PlayerAgent : Agent
         moveDirection = (forward * smoothMoveInput + right * smoothStrafeInput) * walkSpeed;
         moveDirection.y = yVelocity;
 
-        if (collectible == null || !collectible.gameObject.activeInHierarchy)
-        {
-            GameObject found = GameObject.FindWithTag("Collectible");
-            if (found != null)
-                collectible = found.transform;
-        }
+        collectible = GetCachedNearestCollectible();
+        targetEnemy = FindNearestEnemy();
 
-        if (targetEnemy == null || !targetEnemy.gameObject.activeInHierarchy)
-        {
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-            if (enemies.Length > 0)
-            {
-                targetEnemy = enemies[Random.Range(0, enemies.Length)].transform;
-            }
-        }
+        HandleLockOnRotation();
 
         // Check if hitting a wall
         RaycastHit hit;
@@ -173,7 +198,7 @@ public class PlayerAgent : Agent
         {
             if (hit.collider.CompareTag("Wall"))
             {
-                SetReward(-1f);
+                SetReward(-0.5f);
                 EndEpisode();
                 return;
             }
@@ -187,43 +212,132 @@ public class PlayerAgent : Agent
         controller.Move(moveDirection * Time.deltaTime);
         transform.Rotate(0f, smoothRotationInput * rotationSpeed * Time.deltaTime, 0f);
 
+        float reward = 0f;
+
         if (shooter != null)
         {
             shooter.TryShoot(shootInput);
         }
 
-        float reward = 0f;
-
         if (collectible != null)
         {
             float dist = Vector3.Distance(transform.position, collectible.position);
+
             if (dist < 1.2f)
             {
-                reward += 1f;
-                EndEpisode();
+                reward += 1f; 
             }
+
+            float distanceReward = Mathf.Clamp01(1f - dist / 10f); 
+            reward += distanceReward * 0.05f;
         }
+
 
         Vector3 flatMovement = moveDirection;
         flatMovement.y = 0;
         if (flatMovement.magnitude > 0.1f)
         {
-            reward -= flatMovement.magnitude * 0.001f;
-        }
-
-        if (transform.position.y < -1f)
-        {
-            reward -= 1f;
-            EndEpisode();
+            reward -= flatMovement.magnitude * 0.0005f;
         }
 
         if (playerHealth != null && playerHealth.playerhealth <= 0)
         {
-            reward -= 5f;
+            reward -= 2f;
+            EndEpisode();
+        }
+
+        if (Vector3.Distance(transform.position, lastPosition) < 0.05f)
+        {
+            idleStepCount++;
+        }
+        else
+        {
+            idleStepCount = 0;
+        }
+        lastPosition = transform.position;
+
+        if (idleStepCount >= maxIdleSteps)
+        {
+            SetReward(-0.3f);
             EndEpisode();
         }
 
         AddReward(reward);
+    }
+
+    private Transform GetCachedNearestCollectible()
+    {
+        if (cachedCollectible == null || !cachedCollectible.gameObject.activeInHierarchy ||
+            Vector3.Distance(transform.position, cachedCollectible.position) > collectibleSwitchThreshold)
+        {
+            cachedCollectible = FindNearestCollectible();
+        }
+        return cachedCollectible;
+    }
+
+    // Find the nearest collectible in the scene
+    private Transform FindNearestCollectible()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, 30f, collectibleLayer);
+        Transform nearest = null;
+        float minDist = Mathf.Infinity;
+
+        foreach (Collider c in hits)
+        {
+            float dist = Vector3.Distance(transform.position, c.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = c.transform;
+            }
+        }
+        return nearest;
+    }
+
+    // Find the nearest enemy in the scene
+    private Transform FindNearestEnemy()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, 30f, enemyLayer);
+        Transform nearest = null;
+        float minDist = Mathf.Infinity;
+
+        foreach (Collider c in hits)
+        {
+            float dist = Vector3.Distance(transform.position, c.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = c.transform;
+            }
+        }
+        return nearest;
+    }
+
+    // Lock-On
+    private void HandleLockOnRotation()
+    {
+        if (targetEnemy == null) return;
+
+        // Smoothly rotate character toward the enemy
+        Vector3 direction = (targetEnemy.position - transform.position).normalized;
+        direction.y = 0f; // Ignore vertical rotation
+
+        if (direction.magnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        }
+
+        // Give reward if camera is well-aligned with the enemy
+        if (playerCamera != null)
+        {
+            Vector3 viewDir = playerCamera.transform.forward;
+            Vector3 toEnemy = (targetEnemy.position - playerCamera.transform.position).normalized;
+
+            float dot = Vector3.Dot(viewDir, toEnemy); // 1 = perfect aim
+            float alignmentReward = Mathf.Clamp01(dot);
+            AddReward(alignmentReward * 0.01f); // Small reward for better aim
+        }
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
