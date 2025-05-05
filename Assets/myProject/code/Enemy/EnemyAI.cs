@@ -47,7 +47,6 @@ public class EnemyAI : MonoBehaviour
         {
             agent.SetDestination(player.position);
 
-            // µÃÇ¨ÊÍºÃÐÂÐâ¨ÁµÕ
             if (Vector3.Distance(transform.position, player.position) <= attackRange && canAttack)
             {
                 StartCoroutine(AttackPlayer());
@@ -68,11 +67,11 @@ public class EnemyAI : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Player have no PlayerHealth");
+                // Debug.LogError("Player have no PlayerHealth");
             }
         }
 
         yield return new WaitForSeconds(1.0f);
-        Destroy(gameObject); // ÈÑµÃÙËÒÂä»àÁ×èÍ¡Ñ´¼ÙéàÅè¹
+        Destroy(gameObject);
     }
 }
