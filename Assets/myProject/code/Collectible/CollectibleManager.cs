@@ -23,16 +23,16 @@ public class CollectibleManager : MonoBehaviour
     public void AddCollectible(string collectibleName)
     {
         collectibleCount++;
-        Debug.Log($"collectible: {collectibleCount}");
+        // Debug.Log($"collectible: {collectibleCount}");
         if (collectibleText != null)
-            collectibleText.text = $"collectible: {collectibleCount}";
+            collectibleText.text = $"collectibles: {collectibleCount}";
     }
 
     public void ResetCollectible()
     {
         collectibleCount = 0;
         if (collectibleText != null)
-            collectibleText.text = "collectible: 0";
+            collectibleText.text = "collectibles: 0";
     }
 
 }

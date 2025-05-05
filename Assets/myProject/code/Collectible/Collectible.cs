@@ -56,7 +56,7 @@ public class Collectible : MonoBehaviour
             if (spawner != null && spawnedFrom != null)
                 spawner.RespawnCollectible(spawnedFrom, Respawn);
 
-            onCollected?.Invoke(); // ก่อน Destroy
+            onCollected?.Invoke();
 
             Destroy(gameObject);
             agent.AddReward(+3f);
