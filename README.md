@@ -4,5 +4,6 @@ In this project, there is an AI character or Player AI that is Machine Learning 
 
 This project uses the PPO (Proximal Policy Optimization) technique and the data is checked through TensorBoard. This entire project is developed in Unity in a scene named "projects" and all projects are in the branch named "ml-agents".
 
+This is a scene illustration showing the AI ​​machine learning in action, picking up items and facing the enemy to shoot.
 
-![Screenshot 2025-05-05 230938](https://github.com/user-attachments/assets/09c0eaad-5d50-48c9-b36c-f4bacd399034)
+![Screenshot 2025-05-12 024102](https://github.com/user-attachments/assets/c4a26da6-2401-4c0c-a66e-782e11e9a3c3)
